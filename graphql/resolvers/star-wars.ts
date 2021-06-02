@@ -21,7 +21,6 @@ export const starWarsSubSchema = async () => {
     schema: await introspectSchema(remoteExecutor),
     executor: remoteExecutor
   });
-  // return { schema: await introspectSchema(remoteExecutor), executor: remoteExecutor };
 };
 
 export const getPersonQuery = (id: string) => gql`

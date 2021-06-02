@@ -1,29 +1,28 @@
-import React, { useState } from "react";
-import Router from "next/router";
 import gql from "graphql-tag";
+import Router from "next/router";
+import React, { useState } from "react";
 import client from "../../apollo/client";
-import Layout from "../../components/Layout";
+import { useAuthContext } from "../../lib/AuthProvider";
+import Layout from "../../components/Page";
 
 const signupMutation = gql`
   mutation SignupUserMutation($email: String!, $password: String!) {
     signupUser(email: $email, password: $password) {
       token
-      id
-      email
-      username
     }
   }
 `;
 
-function Signup() {
+function signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // const [signup] = useMutation(signupMutation);
+  const { accessToken, setAccessToken } = useAuthContext();
 
   const signup = async () => {
-    const result = await client.mutate({ mutation: signupMutation, variables: { email, password } });
-    console.log(result);
+    const { data } = await client(accessToken).mutate({ mutation: signupMutation, variables: { email, password } });
+    const token = data.signupUser.token;
+    setAccessToken(token);
     Router.push("/");
   };
 
@@ -33,12 +32,10 @@ function Signup() {
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            console.log("submit", password, email);
-
             await signup();
           }}
         >
-          <h1>Signup user</h1>
+          <h1>Signup</h1>
           <input onChange={(e) => setEmail(e.target.value)} placeholder="Email address" type="text" value={email} />
           <input
             autoFocus
@@ -47,7 +44,7 @@ function Signup() {
             type="password"
             value={password}
           />
-          <input disabled={!password || !email} type="submit" value="Signup" />
+          <input disabled={!password || !email} type="submit" value="signup" />
           <a className="back" href="#" onClick={() => Router.push("/")}>
             or Cancel
           </a>
@@ -81,8 +78,9 @@ function Signup() {
         }
       `}</style>
     </Layout>
+    // </AuthContext.Provider>
   );
 }
 
-export default Signup;
-// export default withApollo(Signup);
+export default signup;
+// export default withApollo(signup);

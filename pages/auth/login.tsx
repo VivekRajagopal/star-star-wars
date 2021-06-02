@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import Layout from "../../components/Layout";
-import Router from "next/router";
 import gql from "graphql-tag";
+import Router from "next/router";
+import React, { useState } from "react";
 import client from "../../apollo/client";
+import { useAuthContext } from "../../lib/AuthProvider";
+import Layout from "../../components/Page";
 
 const loginMutation = gql`
   mutation LoginUserMutation($email: String!, $password: String!) {
@@ -16,11 +17,12 @@ function login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // const [login] = useMutation(loginMutation);
+  const { accessToken, setAccessToken } = useAuthContext();
 
   const login = async () => {
-    const result = await client.mutate({ mutation: loginMutation, variables: { email, password } });
-    console.log(result);
+    const { data } = await client(accessToken).mutate({ mutation: loginMutation, variables: { email, password } });
+    const token = data.login.token;
+    setAccessToken(token);
     Router.push("/");
   };
 
@@ -30,8 +32,6 @@ function login() {
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            console.log("submit", password, email);
-
             await login();
           }}
         >
@@ -78,6 +78,7 @@ function login() {
         }
       `}</style>
     </Layout>
+    // </AuthContext.Provider>
   );
 }
 

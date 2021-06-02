@@ -23,4 +23,6 @@ model StarredCharacter {
   userId Int
   externalId String
   user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, externalId], name: "userId_externalId_CompositeKey_UniqueConstraint")
 }

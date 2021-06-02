@@ -9,6 +9,19 @@ type AuthPayload {
   username: String
 }
 
+type Character {
+  eyeColor: String
+  height: Int
+  id: String
+  isFavourite: Boolean
+  name: String
+}
+
+type Dashboard {
+  characters: [Person]
+  user: User
+}
+
 """A single film."""
 type Film implements Node {
   characterConnection(after: String, before: String, first: Int, last: Int): FilmCharactersConnection
@@ -264,7 +277,7 @@ type FilmsEdge {
 type Mutation {
   login(email: String!, password: String!): AuthPayload
   signupUser(email: String!, password: String!): AuthPayload
-  starCharacter(id: String!): Person
+  toggleCharacter(id: String!): Character
   username(username: String!): User
 }
 
@@ -657,9 +670,8 @@ type PlanetsEdge {
 
 type Query {
   Users: [User]
-  allCharacters: [Person]
-  character(id: String!): Person
-  me: User
+  character(id: String!): Character
+  dashboard: Dashboard
 }
 
 type Root {

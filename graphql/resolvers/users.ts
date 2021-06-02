@@ -76,8 +76,6 @@ export const UserResolver = objectType({
       resolve: async (_parent, { username }, context: Context) => {
         const userId = getUserId(context);
 
-        console.log(userId);
-
         const user = await prisma.user.findUnique({
           where: {
             id: userId
@@ -100,8 +98,8 @@ export const UserResolver = objectType({
       }
     });
 
-    t.field("starCharacter", {
-      type: "Person",
+    t.field("toggleCharacter", {
+      type: "Character",
       args: {
         id: nonNull(stringArg())
       },
@@ -124,12 +122,39 @@ export const UserResolver = objectType({
           throw new Error(`Could not find Star Wars character with id ${id}`);
         }
 
-        await context.prisma.starredCharacter.create({
-          data: {
-            externalId: id,
-            userId
-          }
-        });
+        const starredCharacterId = (
+          await context.prisma.starredCharacter.findFirst({
+            where: {
+              externalId: id,
+              userId
+            }
+          })
+        )?.id;
+
+        if (starredCharacterId !== undefined) {
+          await context.prisma.starredCharacter.delete({
+            where: {
+              id: starredCharacterId
+            }
+          });
+        } else {
+          await context.prisma.starredCharacter.create({
+            data: {
+              externalId: id,
+              userId
+            }
+          });
+        }
+
+        const isNowStarred = starredCharacterId === undefined;
+
+        return {
+          id,
+          name: data.person.name,
+          height: data.person.height,
+          eyeColor: data.person.eyeColor,
+          isFavourite: isNowStarred
+        };
       }
     });
   }

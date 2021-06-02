@@ -39,6 +39,17 @@ export interface NexusGenObjects {
     token: string; // String!
     username?: string | null; // String
   }
+  Character: { // root type
+    eyeColor?: string | null; // String
+    height?: number | null; // Int
+    id?: string | null; // String
+    isFavourite?: boolean | null; // Boolean
+    name?: string | null; // String
+  }
+  Dashboard: { // root type
+    characters?: Array<NexusGenRootTypes['Person'] | null> | null; // [Person]
+    user?: NexusGenRootTypes['User'] | null; // User
+  }
   Film: {};
   FilmCharactersConnection: {};
   FilmCharactersEdge: {};
@@ -124,6 +135,17 @@ export interface NexusGenFieldTypes {
     token: string; // String!
     username: string | null; // String
   }
+  Character: { // field return type
+    eyeColor: string | null; // String
+    height: number | null; // Int
+    id: string | null; // String
+    isFavourite: boolean | null; // Boolean
+    name: string | null; // String
+  }
+  Dashboard: { // field return type
+    characters: Array<NexusGenRootTypes['Person'] | null> | null; // [Person]
+    user: NexusGenRootTypes['User'] | null; // User
+  }
   Film: { // field return type
     characterConnection: NexusGenRootTypes['FilmCharactersConnection'] | null; // FilmCharactersConnection
     created: string | null; // String
@@ -203,7 +225,7 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     login: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     signupUser: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
-    starCharacter: NexusGenRootTypes['Person'] | null; // Person
+    toggleCharacter: NexusGenRootTypes['Character'] | null; // Character
     username: NexusGenRootTypes['User'] | null; // User
   }
   PageInfo: { // field return type
@@ -318,9 +340,8 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     Users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
-    allCharacters: Array<NexusGenRootTypes['Person'] | null> | null; // [Person]
-    character: NexusGenRootTypes['Person'] | null; // Person
-    me: NexusGenRootTypes['User'] | null; // User
+    character: NexusGenRootTypes['Character'] | null; // Character
+    dashboard: NexusGenRootTypes['Dashboard'] | null; // Dashboard
   }
   Root: { // field return type
     allFilms: NexusGenRootTypes['FilmsConnection'] | null; // FilmsConnection
@@ -506,6 +527,17 @@ export interface NexusGenFieldTypeNames {
     token: 'String'
     username: 'String'
   }
+  Character: { // field return type name
+    eyeColor: 'String'
+    height: 'Int'
+    id: 'String'
+    isFavourite: 'Boolean'
+    name: 'String'
+  }
+  Dashboard: { // field return type name
+    characters: 'Person'
+    user: 'User'
+  }
   Film: { // field return type name
     characterConnection: 'FilmCharactersConnection'
     created: 'String'
@@ -585,7 +617,7 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     login: 'AuthPayload'
     signupUser: 'AuthPayload'
-    starCharacter: 'Person'
+    toggleCharacter: 'Character'
     username: 'User'
   }
   PageInfo: { // field return type name
@@ -700,9 +732,8 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     Users: 'User'
-    allCharacters: 'Person'
-    character: 'Person'
-    me: 'User'
+    character: 'Character'
+    dashboard: 'Dashboard'
   }
   Root: { // field return type name
     allFilms: 'FilmsConnection'
@@ -923,7 +954,7 @@ export interface NexusGenArgTypes {
       email: string; // String!
       password: string; // String!
     }
-    starCharacter: { // args
+    toggleCharacter: { // args
       id: string; // String!
     }
     username: { // args

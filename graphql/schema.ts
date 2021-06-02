@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { makeSchema, nonNull, objectType, queryField, queryType, stringArg } from "nexus";
+import { makeSchema, nonNull, objectType, queryType, stringArg } from "nexus";
 import { nexusPrisma } from "nexus-plugin-prisma";
 import { swClient } from "../apollo/client";
 import prisma from "../lib/prisma";
@@ -43,15 +43,9 @@ const User = objectType({
           })
           .starredCharacters();
 
-        console.log(starredCharacters);
-
         const result = await Promise.all(
-          starredCharacters
-            .map(({ externalId }) => getPersonQuery(externalId))
-            .map((query) => swClient.query({ query }))
+          starredCharacters.map(({ externalId }) => swClient.query({ query: getPersonQuery(externalId) }))
         );
-
-        console.log(result);
 
         return result.map(({ data }) => data.person);
       }
@@ -59,28 +53,74 @@ const User = objectType({
   }
 });
 
+const Dashboard = objectType({
+  name: "Dashboard",
+  definition(t) {
+    t.field("user", {
+      type: "User"
+    });
+
+    t.list.field("characters", {
+      type: "Person"
+    });
+  }
+});
+
+const Character = objectType({
+  name: "Character",
+  definition(t) {
+    t.field("id", { type: "String" });
+    t.field("name", { type: "String" });
+    t.field("height", { type: "Int" });
+    t.field("eyeColor", { type: "String" });
+    t.field("isFavourite", { type: "Boolean" });
+  }
+});
+
 const Query = queryType({
   definition(t) {
+    // This is for dev purposes only. In production this query must be restricted to Admin access only.
     t.list.field("Users", {
       type: "User",
       async resolve(_parent, _args, ctx) {
-        const result = await prisma.user.findMany({});
-        // console.log(result);
-        return result;
+        return await prisma.user.findMany({});
       }
     });
 
-    t.list.field("allCharacters", {
-      type: "Person",
-      resolve: async (source, args, context: Context) => {
-        assertUserSignedIn(context);
+    t.field("character", {
+      type: "Character",
+      args: {
+        id: nonNull(stringArg())
+      },
+      resolve: async (source, { id }, context: Context) => {
+        const userId = await assertUserSignedIn(context);
 
-        const query = gql`
+        const { data } = await swClient.query({ query: getPersonQuery(id) });
+
+        const starredCharacter = await context.prisma.starredCharacter.findFirst({
+          where: {
+            userId,
+            externalId: id
+          }
+        });
+
+        return { ...data.person, isFavourite: starredCharacter !== null };
+      }
+    });
+
+    t.field("dashboard", {
+      type: "Dashboard",
+      resolve: async (source, args, context: Context) => {
+        const userId = assertUserSignedIn(context);
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        const allCharactersQuery = gql`
           query {
             allPeople {
               people {
-                name
                 id
+                name
                 height
                 eyeColor
               }
@@ -88,32 +128,9 @@ const Query = queryType({
           }
         `;
 
-        const { data } = await swClient.query({ query });
-        return data.allPeople.people;
-      }
-    });
+        const { data } = await swClient.query({ query: allCharactersQuery });
 
-    t.field("character", {
-      type: "Person",
-      args: {
-        id: nonNull(stringArg())
-      },
-      resolve: async (source, { id }, context: Context) => {
-        assertUserSignedIn(context);
-
-        const { data } = await swClient.query({ query: getPersonQuery(id) });
-        return data.person;
-      }
-    });
-
-    t.field("me", {
-      type: "User",
-      resolve: async (source, args, context: Context) => {
-        const userId = assertUserSignedIn(context);
-
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        console.log(user);
-        return user;
+        return { user, characters: data.allPeople.people };
       }
     });
   }
@@ -121,7 +138,7 @@ const Query = queryType({
 
 export const createSchema = async () =>
   makeSchema({
-    types: [Query, AuthPayload, StarredCharacter, User, UserResolver, await starWarsSubSchema()],
+    types: [Query, AuthPayload, StarredCharacter, Character, User, Dashboard, UserResolver, await starWarsSubSchema()],
     plugins: [nexusPrisma({ experimentalCRUD: true })],
     outputs: {
       typegen: `${process.cwd()}/generated/nexus-typegen.ts`,
