@@ -1,37 +1,43 @@
-import { GetStaticProps } from 'next'
-import Link from 'next/link'
+import { GetStaticProps } from "next";
+import Link from "next/link";
 
-import { User } from '../../interfaces'
-import { sampleUserData } from '../../utils/sample-data'
-import Layout from '../../components/Layout'
-import List from '../../components/List'
+import { User } from "../../interfaces";
+import { sampleUserData } from "../../utils/sample-data";
+import Layout from "../../components/Layout";
+import List from "../../components/List";
+import client from "../../apollo/client";
+import gql from "graphql-tag";
 
 type Props = {
-  items: User[]
+  // items: User[];
+  users: { id: string }[];
+};
+
+export async function getServerSideProps(): Promise<{ props: Props }> {
+  console.log("Testononi");
+
+  const { data } = await client.query<{ id: string }[]>({
+    query: gql`
+      query {
+        Users {
+          id
+        }
+      }
+    `
+  });
+
+  return { props: { users: data } };
 }
 
-const WithStaticProps = ({ items }: Props) => (
+const Users = ({ users }: Props) => (
   <Layout title="Users List | Next.js + TypeScript Example">
     <h1>Users List</h1>
     <p>
       Example fetching data from inside <code>getStaticProps()</code>.
     </p>
     <p>You are currently on: /users</p>
-    <List items={items} />
-    <p>
-      <Link href="/">
-        <a>Go home</a>
-      </Link>
-    </p>
+    <pre>{JSON.stringify(users)}</pre>
   </Layout>
-)
+);
 
-export const getStaticProps: GetStaticProps = async () => {
-  // Example for including static props in a Next.js function component page.
-  // Don't forget to include the respective types for any props passed into
-  // the component.
-  const items: User[] = sampleUserData
-  return { props: { items } }
-}
-
-export default WithStaticProps
+export default Users;
