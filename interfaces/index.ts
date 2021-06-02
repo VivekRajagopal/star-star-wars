@@ -1,6 +1,5 @@
 export type User = {
   id: number;
-  username: string | null;
   starredCharacters: {
     id: string;
     name: string;

@@ -44,7 +44,9 @@ function login() {
             type="password"
             value={password}
           />
-          <input disabled={!password || !email} type="submit" value="Login" />
+          <button className="btn btn-primary" disabled={!password || !email} type="submit">
+            Login
+          </button>
           <a className="back" href="#" onClick={() => Router.push("/")}>
             or Cancel
           </a>

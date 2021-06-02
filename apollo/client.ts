@@ -1,7 +1,9 @@
+import fetch from "cross-fetch";
 import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache } from "@apollo/client";
 
 const swGraphQLApi = createHttpLink({
-  uri: "https://swapi-peach.vercel.app/"
+  uri: "https://swapi-peach.vercel.app/",
+  fetch
 });
 
 export const swClient = new ApolloClient({
@@ -10,7 +12,8 @@ export const swClient = new ApolloClient({
 });
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:3000/api/graphql"
+  uri: "http://localhost:3000/api/graphql",
+  fetch
 });
 
 const authLink = (accessToken?: string) =>

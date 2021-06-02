@@ -4,8 +4,8 @@ import { nexusPrisma } from "nexus-plugin-prisma";
 import { swClient } from "../apollo/client";
 import prisma from "../lib/prisma";
 import { Context } from "./context";
-import { getPersonQuery, starWarsSubSchema } from "./resolvers/star-wars";
-import { UserResolver } from "./resolvers/users";
+import { getPersonQuery, starWarsSubSchema } from "./star-wars";
+import { UserResolver } from "./users";
 import { assertUserSignedIn } from "./util";
 
 const AuthPayload = objectType({
@@ -14,7 +14,6 @@ const AuthPayload = objectType({
     t.nonNull.string("token");
     t.nonNull.model("User").id();
     t.nonNull.model("User").email();
-    t.model("User").username();
   }
 });
 
@@ -33,7 +32,6 @@ const User = objectType({
     t.model.id();
     t.model.email();
     t.model.password();
-    t.model.username();
     t.list.field("starredCharacters", {
       type: "Person",
       resolve: async (parent, _, context: Context) => {

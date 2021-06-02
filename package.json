@@ -24,6 +24,7 @@
     "apollo-client": "^2.6.10",
     "apollo-server-micro": "^2.25.0",
     "bcryptjs": "^2.4.3",
+    "cross-fetch": "^3.1.4",
     "graphql": "^15.5.0",
     "graphql-middleware": "^6.0.10",
     "graphql-tag": "^2.12.4",
@@ -31,7 +32,6 @@
     "next": "latest",
     "nexus": "^1.0.0",
     "nexus-plugin-prisma": "^0.35.0",
-    "node-fetch": "^2.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },

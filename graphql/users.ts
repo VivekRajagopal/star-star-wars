@@ -2,10 +2,10 @@ import { nonNull, objectType, stringArg } from "@nexus/schema";
 import { compare, hash } from "bcryptjs";
 import gql from "graphql-tag";
 import { sign } from "jsonwebtoken";
-import { swClient } from "../../apollo/client";
-import prisma from "../../lib/prisma";
-import { Context } from "../context";
-import { assertUserSignedIn, getUserId } from "../util";
+import { swClient } from "../apollo/client";
+import prisma from "../lib/prisma";
+import { Context } from "./context";
+import { assertUserSignedIn, getUserId } from "./util";
 
 const JwtSigningKey = process.env.JWT_SIGNING_KEY;
 
@@ -31,8 +31,7 @@ export const UserResolver = objectType({
         return {
           token: sign({ sub: user.id, email }, JwtSigningKey),
           id: user.id,
-          email: user.email,
-          username: user.username
+          email: user.email
         };
       }
     });
@@ -62,39 +61,8 @@ export const UserResolver = objectType({
         return {
           token: sign({ sub: user.id, email: user.email }, JwtSigningKey),
           id: user.id,
-          email: user.email,
-          username: user.username
+          email: user.email
         };
-      }
-    });
-
-    t.field("username", {
-      type: "User",
-      args: {
-        username: nonNull(stringArg())
-      },
-      resolve: async (_parent, { username }, context: Context) => {
-        const userId = getUserId(context);
-
-        const user = await prisma.user.findUnique({
-          where: {
-            id: userId
-          }
-        });
-
-        if (!user) {
-          throw new Error(`No user found with Id: ${userId}. Bearer Token ${context.req.headers.authorization}`);
-        }
-
-        return prisma.user.update({
-          where: {
-            id: userId
-          },
-          data: {
-            ...user,
-            username: username
-          }
-        });
       }
     });
 

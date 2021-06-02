@@ -1,7 +1,7 @@
-import { introspectSchema, wrapSchema, makeRemoteExecutableSchema } from "@graphql-tools/wrap";
+import { introspectSchema, makeRemoteExecutableSchema } from "@graphql-tools/wrap";
 import { ASTNode, print } from "graphql";
 import gql from "graphql-tag";
-import fetch from "node-fetch";
+import fetch from "cross-fetch";
 
 async function remoteExecutor({ document, variables }: { document: ASTNode; variables?: Record<string, any> }) {
   const query = print(document);

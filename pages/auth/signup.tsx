@@ -44,7 +44,9 @@ function signup() {
             type="password"
             value={password}
           />
-          <input disabled={!password || !email} type="submit" value="signup" />
+          <button className="btn btn-primary" disabled={!password || !email} type="submit">
+            Sign Up
+          </button>
           <a className="back" href="#" onClick={() => Router.push("/")}>
             or Cancel
           </a>

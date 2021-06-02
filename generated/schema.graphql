@@ -278,7 +278,6 @@ type Mutation {
   login(email: String!, password: String!): AuthPayload
   signupUser(email: String!, password: String!): AuthPayload
   toggleCharacter(id: String!): Character
-  username(username: String!): User
 }
 
 """An object with an ID"""

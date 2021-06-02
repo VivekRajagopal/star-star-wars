@@ -226,7 +226,6 @@ export interface NexusGenFieldTypes {
     login: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     signupUser: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     toggleCharacter: NexusGenRootTypes['Character'] | null; // Character
-    username: NexusGenRootTypes['User'] | null; // User
   }
   PageInfo: { // field return type
     endCursor: string | null; // String
@@ -618,7 +617,6 @@ export interface NexusGenFieldTypeNames {
     login: 'AuthPayload'
     signupUser: 'AuthPayload'
     toggleCharacter: 'Character'
-    username: 'User'
   }
   PageInfo: { // field return type name
     endCursor: 'String'
@@ -956,9 +954,6 @@ export interface NexusGenArgTypes {
     }
     toggleCharacter: { // args
       id: string; // String!
-    }
-    username: { // args
-      username: string; // String!
     }
   }
   Person: {
