@@ -37,7 +37,6 @@ export interface NexusGenObjects {
     email: string; // String!
     id: number; // Int!
     token: string; // String!
-    username?: string | null; // String
   }
   Character: { // root type
     eyeColor?: string | null; // String
@@ -106,7 +105,6 @@ export interface NexusGenObjects {
     email: string; // String!
     id: number; // Int!
     password: string; // String!
-    username?: string | null; // String
   }
   Vehicle: {};
   VehicleFilmsConnection: {};
@@ -133,7 +131,6 @@ export interface NexusGenFieldTypes {
     email: string; // String!
     id: number; // Int!
     token: string; // String!
-    username: string | null; // String
   }
   Character: { // field return type
     eyeColor: string | null; // String
@@ -464,7 +461,6 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     password: string; // String!
     starredCharacters: Array<NexusGenRootTypes['Person'] | null> | null; // [Person]
-    username: string | null; // String
   }
   Vehicle: { // field return type
     cargoCapacity: number | null; // Float
@@ -524,7 +520,6 @@ export interface NexusGenFieldTypeNames {
     email: 'String'
     id: 'Int'
     token: 'String'
-    username: 'String'
   }
   Character: { // field return type name
     eyeColor: 'String'
@@ -855,7 +850,6 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     password: 'String'
     starredCharacters: 'Person'
-    username: 'String'
   }
   Vehicle: { // field return type name
     cargoCapacity: 'Float'

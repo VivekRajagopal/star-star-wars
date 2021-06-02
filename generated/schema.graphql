@@ -6,7 +6,6 @@ type AuthPayload {
   email: String!
   id: Int!
   token: String!
-  username: String
 }
 
 type Character {
@@ -1045,7 +1044,6 @@ type User {
   id: Int!
   password: String!
   starredCharacters: [Person]
-  username: String
 }
 
 """A single transport craft that does not have hyperdrive capability"""

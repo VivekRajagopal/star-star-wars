@@ -15,7 +15,6 @@ async function getMyDashboard(accessToken: string) {
         dashboard {
           user {
             id
-            username
             starredCharacters {
               id
               name
@@ -52,9 +51,11 @@ const MyDashboard = ({ accessToken }: { accessToken: string }) => {
       {dashboard.user.starredCharacters.length === 0 ? (
         <span>Check out some characters below and favourite them</span>
       ) : (
-        dashboard.user.starredCharacters.map(({ name, externalId }) =>   <Link href="/[id]" as={`/${externalId}`}>
-        <a>{name}</a>
-      </Link>)
+        dashboard.user.starredCharacters.map(({ name, id }) => (
+          <Link href="/[id]" as={`/${id}`}>
+            <a className="p-2">{name}</a>
+          </Link>
+        ))
       )}
       <hr />
       <h4>All Characters</h4>

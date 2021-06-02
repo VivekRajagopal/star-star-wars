@@ -20,7 +20,7 @@ const Layout = ({ children }: Props) => (
         crossOrigin="anonymous"
       />
     </Head>
-    <body className="container mt-5">
+    <div className="container mt-5">
       <header>
         <nav>
           <Link href="/">
@@ -29,7 +29,7 @@ const Layout = ({ children }: Props) => (
         </nav>
       </header>
       {children}
-    </body>
+    </div>
   </div>
 );
 
