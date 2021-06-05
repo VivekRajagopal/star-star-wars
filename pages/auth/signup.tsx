@@ -1,11 +1,12 @@
 import gql from "graphql-tag";
 import Router from "next/router";
 import React, { useState } from "react";
-import client from "../../apollo/client";
 import { useAuthContext } from "../../lib/AuthProvider";
-import Layout from "../../components/Page";
+import Page from "../../components/Page";
+import { useMutation } from "@apollo/client";
+import { AuthPayload } from "../../interfaces";
 
-const signupMutation = gql`
+const SIGNUP_USER = gql`
   mutation SignupUserMutation($email: String!, $password: String!) {
     signupUser(email: $email, password: $password) {
       token
@@ -17,22 +18,27 @@ function signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { accessToken, setAccessToken } = useAuthContext();
+  const { setAccessToken } = useAuthContext();
 
-  const signup = async () => {
-    const { data } = await client(accessToken).mutate({ mutation: signupMutation, variables: { email, password } });
-    const token = data.signupUser.token;
-    setAccessToken(token);
-    Router.push("/");
-  };
+  const [signupUser, { loading: isSignupPending }] = useMutation<{ signupUser: AuthPayload }>(SIGNUP_USER, {
+    onCompleted: ({ signupUser }) => {
+      setAccessToken(signupUser.token);
+      Router.push("/");
+    }
+  });
 
   return (
-    <Layout>
+    <Page>
       <div>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            await signup();
+            await signupUser({
+              variables: {
+                email,
+                password
+              }
+            });
           }}
         >
           <h1>Signup</h1>
@@ -44,7 +50,7 @@ function signup() {
             type="password"
             value={password}
           />
-          <button className="btn btn-primary" disabled={!password || !email} type="submit">
+          <button className="btn btn-primary" disabled={!password || !email || isSignupPending} type="submit">
             Sign Up
           </button>
           <a className="back" href="#" onClick={() => Router.push("/")}>
@@ -79,10 +85,8 @@ function signup() {
           margin-left: 1rem;
         }
       `}</style>
-    </Layout>
-    // </AuthContext.Provider>
+    </Page>
   );
 }
 
 export default signup;
-// export default withApollo(signup);

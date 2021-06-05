@@ -2,7 +2,7 @@ import { nonNull, objectType, stringArg } from "@nexus/schema";
 import { compare, hash } from "bcryptjs";
 import gql from "graphql-tag";
 import { sign } from "jsonwebtoken";
-import { swClient } from "../apollo/client";
+import { swClient } from "../apollo/star-wars-client";
 import prisma from "../lib/prisma";
 import { Context } from "./context";
 import { assertUserSignedIn, getUserId } from "./util";

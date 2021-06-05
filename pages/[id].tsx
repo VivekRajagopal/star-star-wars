@@ -1,14 +1,14 @@
+import { useMutation, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import Link from "next/link";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import client from "../apollo/client";
+import { DASHBOARD } from ".";
 import CharacterDetail from "../components/CharacterDetail";
-import Layout from "../components/Page";
+import Page from "../components/Page";
 import { Character } from "../interfaces";
-import { AuthContext, useAuthContext } from "../lib/AuthProvider";
 
-const getCharacterQuery = gql`
+const GET_CHARACTER = gql`
   query GetCharacterQuery($id: String!) {
     character(id: $id) {
       id
@@ -20,7 +20,7 @@ const getCharacterQuery = gql`
   }
 `;
 
-const starCharacterMutation = gql`
+const TOGGLE_CHARACTER = gql`
   mutation StarCharacterMutation($id: String!) {
     toggleCharacter(id: $id) {
       id
@@ -32,68 +32,61 @@ const starCharacterMutation = gql`
   }
 `;
 
-async function getCharacter(accessToken: string, id: string) {
-  const { data } = await client(accessToken).query<{ character: Character }>({
-    query: getCharacterQuery,
-    variables: { id }
-  });
-
-  return data.character;
-}
-
-async function toggleCharacter(accessToken: string, id: string) {
-  const { data } = await client(accessToken).mutate<{ toggleCharacter: Character }>({
-    mutation: starCharacterMutation,
-    variables: { id }
-  });
-
-  return data?.toggleCharacter;
-}
-
+// TODO - Authorize this route
 const CharacterDetailPage = () => {
-  const { accessToken, setAccessToken } = useAuthContext();
-  const [character, setCharacter] = useState<Character>();
-  const [characterId, setCharacterId] = useState<string>();
+  const router = useRouter();
+  const [characterId, setCharacterId] = useState<string | undefined>(undefined);
+
+  const { data, updateQuery } = useQuery<{ character: Character }>(GET_CHARACTER, {
+    variables: { id: router.query.id }
+  });
+
+  const [toggleCharacter, { loading: isToggleLoading }] = useMutation<{ toggleCharacter: Character }>(
+    TOGGLE_CHARACTER,
+    {
+      variables: { id: characterId },
+      onCompleted: ({ toggleCharacter }) =>
+        updateQuery(() => {
+          return { character: toggleCharacter };
+        }),
+      refetchQueries: [{ query: DASHBOARD }]
+    }
+  );
 
   useEffect(() => {
-    const characterId = Router.query.id as string;
+    const characterId = router.query.id as string | undefined;
     setCharacterId(characterId);
-    accessToken && getCharacter(accessToken, characterId).then((dashboard) => setCharacter(dashboard));
-  }, [accessToken]);
+  }, [router]);
 
-  if (!accessToken) {
-    return <Link href="/auth/login">Login to see this Character</Link>;
-  }
-
-  if (!character || !characterId) {
+  if (!data || !characterId) {
     return <></>;
   }
 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken }}>
-      <Layout>
-        <Link href="/" as={`/`}>
-          <a>Back</a>
-        </Link>
-
-        <CharacterDetail character={character}></CharacterDetail>
-        {character.isFavourite ? (
-          <button
-            className="btn btn-warning"
-            onClick={async () => setCharacter(await toggleCharacter(accessToken, characterId))}
-          >
-            Unfavourite
-          </button>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={async () => setCharacter(await toggleCharacter(accessToken, characterId))}
-          >
-            ⭐ Favourite
-          </button>
-        )}
-      </Layout>
-    </AuthContext.Provider>
+    <Page>
+      <Link href="/" as={`/`}>
+        <a>Back</a>
+      </Link>
+      <hr />
+      <CharacterDetail character={data.character}></CharacterDetail>
+      {data.character.isFavourite ? (
+        <button
+          className="btn btn-warning my-5"
+          disabled={isToggleLoading}
+          onClick={async () => await toggleCharacter()}
+        >
+          Unfavourite
+        </button>
+      ) : (
+        <button
+          className="btn btn-primary my-5"
+          disabled={isToggleLoading}
+          onClick={async () => await toggleCharacter()}
+        >
+          ⭐ Favourite
+        </button>
+      )}
+    </Page>
   );
 };
 

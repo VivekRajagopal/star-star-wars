@@ -18,3 +18,7 @@ export type Dashboard = {
   user: User;
   characters: Character[];
 };
+
+export type AuthPayload = {
+  token: string;
+};

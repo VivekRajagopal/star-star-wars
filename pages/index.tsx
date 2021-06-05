@@ -1,49 +1,39 @@
+import { ApolloClient, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import client from "../apollo/client";
-import { AuthContext, useAuthContext } from "../lib/AuthProvider";
-import Layout from "../components/Page";
 import CharacterList from "../components/CharacterList";
+import Page from "../components/Page";
 import { Dashboard } from "../interfaces";
+import { useAuthContext } from "../lib/AuthProvider";
 
-async function getMyDashboard(accessToken: string) {
-  const { data } = await client(accessToken).query<{ dashboard: Dashboard }>({
-    context: {},
-    query: gql`
-      query {
-        dashboard {
-          user {
-            id
-            starredCharacters {
-              id
-              name
-            }
-          }
-          characters {
-            id
-            name
-            height
-            eyeColor
-          }
+export const DASHBOARD = gql`
+  query {
+    dashboard {
+      user {
+        id
+        starredCharacters {
+          id
+          name
         }
       }
-    `
-  });
+      characters {
+        id
+        name
+        height
+        eyeColor
+      }
+    }
+  }
+`;
 
-  return data.dashboard;
-}
+const MyDashboard = () => {
+  const { data } = useQuery<{ dashboard: Dashboard }>(DASHBOARD);
 
-const MyDashboard = ({ accessToken }: { accessToken: string }) => {
-  const [dashboard, setDashboard] = useState<Dashboard>();
-
-  useEffect(() => {
-    getMyDashboard(accessToken).then((dashboard) => setDashboard(dashboard));
-  }, []);
-
-  if (!dashboard) {
+  if (!data) {
     return <></>;
   }
+
+  const { dashboard } = data;
 
   return (
     <>
@@ -52,7 +42,7 @@ const MyDashboard = ({ accessToken }: { accessToken: string }) => {
         <span>Check out some characters below and favourite them</span>
       ) : (
         dashboard.user.starredCharacters.map(({ name, id }) => (
-          <Link href="/[id]" as={`/${id}`}>
+          <Link key={id} href="/[id]" as={`/${id}`}>
             <a className="p-2">{name}</a>
           </Link>
         ))
@@ -65,7 +55,7 @@ const MyDashboard = ({ accessToken }: { accessToken: string }) => {
 };
 
 const LoginOrSignup = () => (
-  <>
+  <div>
     <Link href="/auth/login">
       <a>Login</a>
     </Link>
@@ -73,18 +63,17 @@ const LoginOrSignup = () => (
     <Link href="/auth/signup">
       <a>Signup</a>
     </Link>
-  </>
+  </div>
 );
 
 const IndexPage = () => {
-  const { accessToken, setAccessToken } = useAuthContext();
+  const { isSignedIn } = useAuthContext();
+
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken }}>
-      <Layout title="Home | Next.js + TypeScript Example">
-        <h1>Welcome to (Star) Star Wars!</h1>
-        {accessToken ? <MyDashboard accessToken={accessToken} /> : <LoginOrSignup />}
-      </Layout>
-    </AuthContext.Provider>
+    <Page>
+      <h1>Welcome to (Star) Star Wars!</h1>
+      {isSignedIn() ? <MyDashboard /> : <LoginOrSignup />}
+    </Page>
   );
 };
 

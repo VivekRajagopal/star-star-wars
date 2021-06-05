@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { makeSchema, nonNull, objectType, queryType, stringArg } from "nexus";
 import { nexusPrisma } from "nexus-plugin-prisma";
-import { swClient } from "../apollo/client";
+import { swClient } from "../apollo/star-wars-client";
 import prisma from "../lib/prisma";
 import { Context } from "./context";
 import { getPersonQuery, starWarsSubSchema } from "./star-wars";
