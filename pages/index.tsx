@@ -1,4 +1,4 @@
-import { ApolloClient, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
 import Link from "next/link";
 import CharacterList from "../components/CharacterList";

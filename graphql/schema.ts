@@ -2,7 +2,6 @@ import gql from "graphql-tag";
 import { makeSchema, nonNull, objectType, queryType, stringArg } from "nexus";
 import { nexusPrisma } from "nexus-plugin-prisma";
 import { swClient } from "../apollo/star-wars-client";
-import prisma from "../lib/prisma";
 import { Context } from "./context";
 import { getPersonQuery, starWarsSubSchema } from "./star-wars";
 import { UserResolver } from "./users";
@@ -80,8 +79,8 @@ const Query = queryType({
     // This is for dev purposes only. In production this query must be restricted to Admin access only.
     t.list.field("Users", {
       type: "User",
-      async resolve(_parent, _args, ctx) {
-        return await prisma.user.findMany({});
+      async resolve(_root, _args, context: Context) {
+        return await context.prisma.user.findMany({});
       }
     });
 
@@ -90,7 +89,7 @@ const Query = queryType({
       args: {
         id: nonNull(stringArg())
       },
-      resolve: async (source, { id }, context: Context) => {
+      resolve: async (_root, { id }, context: Context) => {
         const userId = await assertUserSignedIn(context);
 
         const { data } = await swClient.query({ query: getPersonQuery(id) });
@@ -108,10 +107,10 @@ const Query = queryType({
 
     t.field("dashboard", {
       type: "Dashboard",
-      resolve: async (source, args, context: Context) => {
+      resolve: async (_root, _args, context: Context) => {
         const userId = assertUserSignedIn(context);
 
-        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const user = await context.prisma.user.findUnique({ where: { id: userId } });
 
         const allCharactersQuery = gql`
           query {

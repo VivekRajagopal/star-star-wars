@@ -7,6 +7,7 @@ import { DASHBOARD } from ".";
 import CharacterDetail from "../components/CharacterDetail";
 import Page from "../components/Page";
 import { Character } from "../interfaces";
+import { requireAuth } from "../lib/requireAuth";
 
 const GET_CHARACTER = gql`
   query GetCharacterQuery($id: String!) {
@@ -32,8 +33,9 @@ const TOGGLE_CHARACTER = gql`
   }
 `;
 
-// TODO - Authorize this route
 const CharacterDetailPage = () => {
+  requireAuth();
+
   const router = useRouter();
   const [characterId, setCharacterId] = useState<string | undefined>(undefined);
 

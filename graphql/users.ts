@@ -3,9 +3,8 @@ import { compare, hash } from "bcryptjs";
 import gql from "graphql-tag";
 import { sign } from "jsonwebtoken";
 import { swClient } from "../apollo/star-wars-client";
-import prisma from "../lib/prisma";
 import { Context } from "./context";
-import { assertUserSignedIn, getUserId } from "./util";
+import { assertUserSignedIn } from "./util";
 
 const JwtSigningKey = process.env.JWT_SIGNING_KEY;
 
@@ -18,10 +17,10 @@ export const UserResolver = objectType({
         email: nonNull(stringArg()),
         password: nonNull(stringArg())
       },
-      resolve: async (_parent, { email, password }, _) => {
+      resolve: async (_parent, { email, password }, context: Context) => {
         const passwordHash = await hash(password, 10);
 
-        const user = await prisma.user.create({
+        const user = await context.prisma.user.create({
           data: {
             email: email,
             password: passwordHash
@@ -42,8 +41,8 @@ export const UserResolver = objectType({
         email: nonNull(stringArg()),
         password: nonNull(stringArg())
       },
-      resolve: async (_parent, { email, password }, _) => {
-        const user = await prisma.user.findUnique({
+      resolve: async (_parent, { email, password }, context: Context) => {
+        const user = await context.prisma.user.findUnique({
           where: {
             email
           }
@@ -71,7 +70,7 @@ export const UserResolver = objectType({
       args: {
         id: nonNull(stringArg())
       },
-      resolve: async (source, { id }, context: Context) => {
+      resolve: async (_source, { id }, context: Context) => {
         const userId = assertUserSignedIn(context);
 
         const query = gql`
